@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  web:
+    depends_on:
+      - postgres_db
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: django-k8s:v1
+    environment:
+      - PORT=8020
+    env_file:
+      - web/.env
+    ports:
+      - "8001:8020"
+    command: sh -c "chmod +x /app/migrate.sh && sh /app/migrate.sh && /app/entrypoint.sh"
+    volumes:
+       - staticfiles:/app/staticfiles/
+  postgres_db:
+    image: postgres
+    command: -p 5434
+    env_file:
+      - web/.env
+    expose:
+      - 5434
+    ports:
+      - "5434:5434"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  redis_db:
+      image: redis
+      restart: always
+      expose:
+        - 6380
+      ports:
+        - "6380:6380"
+      volumes:
+          - redis_data:/data
+      entrypoint: redis-server --appendonly yes --port 6380
+
+
+volumes:
+  staticfiles:
+      external: true
+  postgres_data:
+  redis_data: 
