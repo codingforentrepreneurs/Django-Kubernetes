@@ -36,3 +36,29 @@ Kubernetes can do *a lot* which makes it a great tool to learn but also a daunti
 - [Code](https://github.com/codingforentrepreneurs/Django-Kubernetes)
 
 We have partnered with [DigitalOcean](https://do.co/cfe-sh) to bring you this series. Sign up for an [account](https://do.co/cfe-sh) when you're ready to get started with this series.
+
+
+
+## Cloning this Repo?
+
+Make sure you create `web/.env` and fill in the following variables:
+
+```
+DEBUG=1
+REGION=texas
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_PASSWORD=mydjangopw
+DJANGO_SUERPUSER_EMAIL=hello@teamcfe.com
+DJANGO_SECRET_KEY=fix_this_later
+
+POSTGRES_READY=0
+POSTGRES_DB=dockerdc
+POSTGRES_PASSWORD=mysecretpassword
+POSTGRES_USER=myuser
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5434
+
+REDIS_HOST=redis_db
+REDIS_PORT=6388
+```
+> If you change `POSTGRES_PORT` or `REDIS_PORT` be sure to update those values in `docker-compose.yaml`
