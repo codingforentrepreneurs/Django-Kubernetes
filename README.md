@@ -63,9 +63,6 @@ REDIS_PORT=6388
 ```
 > If you change `POSTGRES_PORT` or `REDIS_PORT` be sure to update those values in `docker-compose.yaml`
 
-
-> If you change `POSTGRES_PORT` or `REDIS_PORT` be sure to update those values in `docker-compose.yaml`
-
 Once you have the above `.env` file, navigate to your project root (right where `docker-compose.yaml` is) and run:
 
 ```
