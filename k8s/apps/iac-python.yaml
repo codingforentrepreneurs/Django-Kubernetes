@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iac-python-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: iac-python-deployment
+  template:
+    metadata:
+      labels:
+        app: iac-python-deployment
+    spec:
+      containers:
+        - name: iac-python
+          image: codingforentrepreneurs/iac-python:latest
+          env:
+            - name: PORT
+              value: "8181"
+          ports:
+            - containerPort: 8181
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: iac-python-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8181
+  selector:
+    app: iac-python-deployment
