@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-k8s-web-deployment
+  labels:
+    app: django-k8s-web-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django-k8s-web-deployment
+  template:
+    metadata:
+      labels:
+        app: django-k8s-web-deployment
+    spec:
+      containers:
+      - name: django-k8s-web
+        image: registry.digitalocean.com/cfe-k8s/django-k8s-web:latest
+        envFrom:
+          - secretRef:
+              name: django-k8s-web-prod-env
+        env:
+          - name: PORT
+            value: "8001"
+        ports:
+        - containerPort: 8001
+      imagePullSecrets:
+        - name: cfe-k8s   
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-k8s-web-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8001
+  selector:
+    app: django-k8s-web-deployment
