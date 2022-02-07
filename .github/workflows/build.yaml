@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test_django_job]
     env:
-      DJANGO_SECRET_KEY: test-key-not-good-maybe-make-one-better
       CLUSTER_NAME: django-k8s
     steps:
     - name: Checkout code
