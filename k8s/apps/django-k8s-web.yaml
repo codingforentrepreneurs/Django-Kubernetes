@@ -17,6 +17,7 @@ spec:
       containers:
       - name: django-k8s-web
         image: registry.digitalocean.com/cfe-k8s/django-k8s-web:latest
+        imagePullPolicy: Always
         envFrom:
           - secretRef:
               name: django-k8s-web-prod-env
