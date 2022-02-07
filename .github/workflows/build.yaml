@@ -39,7 +39,7 @@ jobs:
     - name: K8s cluster kubeconfig file with/ short-lived creds
       run: |
         doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ env.CLUSTER_NAME }}
-    - name: Update deployment secrets:
+    - name: Update deployment secrets
       run: |
         cat << EOF >> web/.env.prod
         DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
