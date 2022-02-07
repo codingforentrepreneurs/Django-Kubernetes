@@ -52,7 +52,7 @@ jobs:
         POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
         POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
         EOF
-        kubectl delete django-k8s-web-prod-env
+        kubectl delete secret django-k8s-web-prod-env
         kubectl create secret generic django-k8s-web-prod-env --from-env-file=web/.env.prod
     - name: Update Deployment image
       run: |
