@@ -14,6 +14,8 @@ jobs:
     defaults:
       run:
         working-directory: ./web
+    env:
+      DJANGO_SECRET_KEY: test-key-not-good-maybe-make-one-better
     strategy:
       max-parallel: 4
       matrix:
