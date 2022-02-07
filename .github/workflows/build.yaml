@@ -30,7 +30,7 @@ jobs:
       run: |
         docker build -f Dockerfile \
           -t registry.digitalocean.com/cfe-k8s/django-k8s-web:latest \
-          -t registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7} \
+          -t registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}-${GITHUB_RUN_ID::5} \
           .
     - name: Push image
       run: |
@@ -58,11 +58,11 @@ jobs:
         kubectl create secret generic django-k8s-web-prod-env --from-env-file=web/.env.prod
     - name: Update Deployment image
       run: |
-        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}
+        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}-${GITHUB_RUN_ID::5}
     - name: Wait for rollout to finish
       run: |
         kubectl rollout status deployment/django-k8s-web-deployment
-    - name: Migrate Database Command
+    - name: Post-build Django Commands - Migrate / Collectstatic
       run: |
         export SINGLE_POD_NAME=$(kubectl get pod -l app=django-k8s-web-deployment -o jsonpath="{.items[0].metadata.name}")
         kubectl exec -it $SINGLE_POD_NAME -- bash /app/migrate.sh
