@@ -3,7 +3,6 @@ from django.test import TestCase
 from .models import Post
 
 class PostTestCase(TestCase):
-
     def setUp(self):
         Post.objects.create(title='Hello World')
 
