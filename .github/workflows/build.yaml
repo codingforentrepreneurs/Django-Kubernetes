@@ -17,54 +17,53 @@ jobs:
     env:
       CLUSTER_NAME: django-k8s
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Insall doctl
-      uses: digitalocean/action-doctl@v2
-      with:
-        token: ${{ secrets.DO_API_TOKEN_KEY }}
-    - name: Login to DO Container Registry with short-lived creds
-      run: doctl registry login --expiry-seconds 1200
-    - name: Build container image
-      working-directory: ./web
-      run: |
-        docker build -f Dockerfile \
-          -t registry.digitalocean.com/cfe-k8s/django-k8s-web:latest \
-          -t registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}-${GITHUB_RUN_ID::5} \
-          .
-    - name: Push image
-      run: |
-        docker push registry.digitalocean.com/cfe-k8s/django-k8s-web --all-tags
-    - name: K8s cluster kubeconfig file with/ short-lived creds
-      run: |
-        doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ env.CLUSTER_NAME }}
-    - name: Update deployment secrets
-      run: |
-        cat << EOF >> web/.env.prod
-        AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
-        DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
-        DJANGO_SUERPUSER_EMAIL=${{ secrets.DJANGO_SUERPUSER_EMAIL }}
-        DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-        ENV_ALLOWED_HOST=${{ secrets.ENV_ALLOWED_HOST }}
-        POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-        POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-        POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-        POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
-        POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
-        EOF
-        kubectl delete secret django-k8s-web-prod-env
-        kubectl create secret generic django-k8s-web-prod-env --from-env-file=web/.env.prod
-    - name: Update Deployment image
-      run: |
-        kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}-${GITHUB_RUN_ID::5}
-    - name: Wait for rollout to finish
-      run: |
-        kubectl rollout status deployment/django-k8s-web-deployment
-    - name: Post-build Django Commands - Migrate / Collectstatic
-      run: |
-        export SINGLE_POD_NAME=$(kubectl get pod -l app=django-k8s-web-deployment -o jsonpath="{.items[0].metadata.name}")
-        kubectl exec -it $SINGLE_POD_NAME -- bash /app/migrate.sh
-        kubectl exec -it $SINGLE_POD_NAME -- bash /app/collectstatic.sh
-    
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Insall doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN_KEY }}
+      - name: Login to DO Container Registry with short-lived creds
+        run: doctl registry login --expiry-seconds 1200
+      - name: Build container image
+        working-directory: ./web
+        run: |
+          docker build -f Dockerfile \
+            -t registry.digitalocean.com/cfe-k8s/django-k8s-web:latest \
+            -t registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}-${GITHUB_RUN_ID::5} \
+            .
+      - name: Push image
+        run: |
+          docker push registry.digitalocean.com/cfe-k8s/django-k8s-web --all-tags
+      - name: K8s cluster kubeconfig file with/ short-lived creds
+        run: |
+          doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ env.CLUSTER_NAME }}
+      - name: Update deployment secrets
+        run: |
+          cat << EOF >> web/.env.prod
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+          DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}
+          DJANGO_SUERPUSER_EMAIL=${{ secrets.DJANGO_SUERPUSER_EMAIL }}
+          DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          ENV_ALLOWED_HOST=${{ secrets.ENV_ALLOWED_HOST }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+          EOF
+          kubectl delete secret django-k8s-web-prod-env
+          kubectl create secret generic django-k8s-web-prod-env --from-env-file=web/.env.prod
+      - name: Update Deployment image
+        run: |
+          kubectl set image deployment/django-k8s-web-deployment django-k8s-web=registry.digitalocean.com/cfe-k8s/django-k8s-web:${GITHUB_SHA::7}-${GITHUB_RUN_ID::5}
+      - name: Wait for rollout to finish
+        run: |
+          kubectl rollout status deployment/django-k8s-web-deployment
+      - name: Post-build Django Commands - Migrate / Collectstatic
+        run: |
+          export SINGLE_POD_NAME=$(kubectl get pod -l app=django-k8s-web-deployment -o jsonpath="{.items[0].metadata.name}")
+          kubectl exec -it $SINGLE_POD_NAME -- bash /app/migrate.sh
+          kubectl exec -it $SINGLE_POD_NAME -- bash /app/collectstatic.sh
